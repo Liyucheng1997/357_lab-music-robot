@@ -2,7 +2,7 @@
 
 一处搜遍各大音乐平台，附带网易云排行榜、网易云推荐歌单，以及根据你的听歌习惯生成的个性化推荐。
 
-版本 **v1.0.0** · [在线页面](https://liyucheng1997.github.io/yinyu-music/) · [版本记录](CHANGELOG.md)
+版本 **v1.0.0** · [在线页面](https://liyucheng1997.github.io/357_lab-music-robot/) · [版本记录](CHANGELOG.md)
 
 ## GitHub Pages
 
