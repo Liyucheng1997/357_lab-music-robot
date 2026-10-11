@@ -8,6 +8,8 @@
 
 推送到 `main` 后，GitHub Actions 自动测试并将 `public/` 部署到 Pages。
 
+`server/`、`public/` 或 `package.json` 有改动并推送到 `main` 时，`Deploy Backend` 工作流会测试后通过受限 SSH 钥匙登录服务器，执行 `/usr/local/bin/deploy-music`：拉取 `main`、重启 `app-music` 服务并做健康检查。也可以在 Actions 页面手动运行。
+
 Pages 仅托管前端，无法运行本项目的 Node.js API。未连接后端时可以访问页面、浏览本地收藏并使用官方平台入口；聚合搜索、榜单、推荐、歌词和音频解析需要单独部署后端。
 
 将此仓库部署到支持 Node.js 的服务器，启动命令为 `npm start`，配置环境变量：
