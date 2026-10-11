@@ -1,9 +1,10 @@
 const KEY = 'yinyu:backend';
+export const DEFAULT_BACKEND = 'https://music.liyucheng.me';
 export const isPages = () => typeof location !== 'undefined' && location.hostname.endsWith('.github.io');
 
 export function getBackendBase() {
   if (!isPages()) return '';
-  try { return localStorage.getItem(KEY) || ''; } catch { return ''; }
+  try { return localStorage.getItem(KEY) || DEFAULT_BACKEND; } catch { return DEFAULT_BACKEND; }
 }
 
 export function setBackendBase(value) {

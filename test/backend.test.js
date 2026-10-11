@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getBackendBase, setBackendBase, backendUrl, rewriteStreamUrls } from '../public/js/backend.js';
+import { DEFAULT_BACKEND, getBackendBase, setBackendBase, backendUrl, rewriteStreamUrls } from '../public/js/backend.js';
 import { api } from '../public/js/api.js';
 
 const saved = new Map();
@@ -26,11 +26,10 @@ test('Pages 所有候选视频流指向配置的后端，而非 Pages', () => {
   assert.equal(result.resources[1].url, 'https://cdn.example.com/audio');
 });
 
-test('Pages 未连接服务时不请求错误的静态 API，保留官方搜索入口', async () => {
+test('Pages 默认连接已部署的音乐服务，清空自定义地址后恢复默认', () => {
   globalThis.location = { hostname: 'liyucheng1997.github.io' };
+  setBackendBase('https://example.com');
   setBackendBase('');
-  const results = await api.search('晴天');
-  assert.equal(results.results.douyin.status, 'external');
-  assert.ok(results.results.douyin.link.includes(encodeURIComponent('晴天')));
-  await assert.rejects(api.discover(), /连接音乐服务/);
+  assert.equal(getBackendBase(), DEFAULT_BACKEND);
+  assert.equal(backendUrl('/api/discover'), `${DEFAULT_BACKEND}/api/discover`);
 });

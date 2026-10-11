@@ -18,7 +18,7 @@ PORT=3570
 CORS_ORIGINS=https://liyucheng1997.github.io
 ```
 
-为后端配置 HTTPS，然后在 Pages 页面上方「连接音乐服务」填写后端根地址。地址只保存在当前浏览器；B站音轨会自动使用该后端的转发地址。后端接口须允许上述 Pages 来源的跨域请求。未部署后端前，在线页面不具备完整搜索与播放功能。
+为后端配置 HTTPS。在线页面默认连接已部署的后端 `https://music.liyucheng.me`（见 [public/js/backend.js](public/js/backend.js) 的 `DEFAULT_BACKEND`），也可以在页面上方「连接音乐服务」改填其他后端根地址，清空则恢复默认。地址只保存在当前浏览器；B站音轨会自动使用该后端的转发地址。后端接口须允许上述 Pages 来源的跨域请求。
 
 ## 运行
 
