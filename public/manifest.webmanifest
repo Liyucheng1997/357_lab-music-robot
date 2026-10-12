@@ -1,0 +1,18 @@
+{
+  "id": "./",
+  "name": "音隅 · 聚合音乐",
+  "short_name": "音隅",
+  "description": "一处搜遍各大音乐平台，排行榜与懂你的推荐。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f6f3",
+  "theme_color": "#f7f6f3",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

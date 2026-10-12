@@ -10,6 +10,7 @@ import { desktopLyric } from './desktop-lyric.js';
 import './avail.js';
 import { qualityLabel } from './quality.js';
 import './deployment.js';
+import './pwa.js';
 
 const $ = (id) => document.getElementById(id);
 const view = $('view');
@@ -468,6 +469,8 @@ function applyTheme() {
   if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
   else delete document.documentElement.dataset.theme;
   const dark = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+  // 状态栏颜色跟着页面主题走（安卓从桌面打开时最明显）
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => { m.content = dark ? '#111113' : '#f7f6f3'; });
   for (const btn of [$('themeBtn'), $('themeBtnMobile')]) {
     setIcon(btn, dark ? 'sun' : 'moon');
     const label = btn.querySelector('span');
