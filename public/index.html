@@ -94,12 +94,22 @@
   <section class="now" id="now" hidden aria-label="正在播放">
     <div class="now-bg" id="nowBg"></div>
     <button class="icon-btn now-close" id="nowClose" type="button" title="收起 (Esc)"><i data-icon="down"></i></button>
+    <div class="now-tabs" id="nowTabs" role="tablist" aria-label="播放页视图">
+      <button type="button" role="tab" data-pane="art">歌曲</button>
+      <button type="button" role="tab" data-pane="lyric">歌词</button>
+    </div>
     <div class="now-inner">
       <div class="now-art">
         <img id="nowCover" alt="" />
         <div class="now-text">
-          <h2 id="nowTitle"></h2>
-          <p id="nowSub"></p>
+          <div class="now-title-row">
+            <div class="now-title-text">
+              <h2 id="nowTitle"></h2>
+              <p id="nowSub"></p>
+            </div>
+            <button class="icon-btn like-btn now-like" id="nowLike" type="button" title="喜欢"><i data-icon="heart"></i></button>
+          </div>
+          <p class="now-line" id="nowLine"></p>
           <div class="now-links" id="nowLinks"></div>
         </div>
       </div>

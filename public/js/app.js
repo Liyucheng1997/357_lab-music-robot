@@ -49,7 +49,10 @@ function route() {
   }
   location.hash = '#/';
 }
-window.addEventListener('hashchange', route);
+window.addEventListener('hashchange', () => {
+  closeNow();
+  route();
+});
 
 // 数据变化时刷新依赖本地数据的页面
 store.subscribe((what) => {
@@ -137,7 +140,9 @@ function toggleLike(song, btn) {
 
 function syncLikeButtons() {
   const cur = player.current;
-  $('pLike').classList.toggle('on', !!cur && store.isLiked(cur));
+  const liked = !!cur && store.isLiked(cur);
+  $('pLike').classList.toggle('on', liked);
+  $('nowLike').classList.toggle('on', liked);
   document.querySelectorAll('.song[data-key]').forEach((row) => {
     const s = V.getList(row.dataset.list)?.[row.dataset.i];
     const b = row.querySelector('[data-act="like"]');
@@ -177,6 +182,7 @@ player.on('song', (s) => {
     lyricLines = [];
     lyricActive = -1;
     $('lyricsInner').innerHTML = `<p class="lyric-empty">${s ? '歌词加载中…' : ''}</p>`;
+    $('nowLine').textContent = '';
     desktopLyric.setLyric([], s ? '歌词加载中…' : '');
   }
   syncLikeButtons();
@@ -233,6 +239,7 @@ pPlay.addEventListener('click', () => player.toggle());
 $('pPrev').addEventListener('click', () => player.prev());
 $('pNext').addEventListener('click', () => player.next());
 $('pLike').addEventListener('click', () => player.current && toggleLike(player.current));
+$('nowLike').addEventListener('click', () => player.current && toggleLike(player.current));
 
 pSeek.addEventListener('input', () => {
   seeking = true;
@@ -274,27 +281,62 @@ const now = $('now');
 let lyricLines = [];
 let lyricActive = -1;
 let lyricFor = '';
+const isMobile = () => matchMedia('(max-width: 820px)').matches;
 
 function openNow() {
   if (!player.current) return;
   now.hidden = false;
   now.classList.remove('closing');
+  document.body.classList.add('now-open');
+  // 移动端：压入一条历史记录，让系统返回键/手势收起播放页而不是离开当前页面
+  if (isMobile() && !history.state?.now) history.pushState({ now: true }, '');
   updateNowPlaying();
   centerLyric(true);
 }
 function closeNow() {
-  if (now.hidden) return;
+  if (now.hidden || now.classList.contains('closing')) return;
+  if (history.state?.now) return history.back(); // popstate 会再次调用 closeNow
+  document.body.classList.remove('now-open');
   now.classList.add('closing');
   now.addEventListener('animationend', () => {
     now.hidden = true;
     now.classList.remove('closing');
   }, { once: true });
 }
+window.addEventListener('popstate', () => closeNow());
 $('openNow').addEventListener('click', openNow);
 $('pLyricBtn').addEventListener('click', () => (now.hidden ? openNow() : closeNow()));
 $('nowClose').addEventListener('click', closeNow);
 // 移动端：点击播放栏信息区展开
-document.querySelector('.player-meta').addEventListener('click', () => matchMedia('(max-width: 820px)').matches && openNow());
+document.querySelector('.player-meta').addEventListener('click', () => isMobile() && openNow());
+
+// 移动端播放页分「歌曲」「歌词」两屏；点封面或当前歌词行切到歌词
+function setNowPane(pane) {
+  now.dataset.pane = pane;
+  $('nowTabs').querySelectorAll('[data-pane]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.pane === pane)));
+  if (pane === 'lyric') requestAnimationFrame(() => centerLyric(true));
+}
+setNowPane('art');
+$('nowTabs').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-pane]');
+  if (b) setNowPane(b.dataset.pane);
+});
+$('nowCover').addEventListener('click', () => isMobile() && setNowPane('lyric'));
+$('nowLine').addEventListener('click', () => setNowPane('lyric'));
+
+// 移动端：在歌词以外的区域下滑收起播放页
+let swipe = null;
+now.addEventListener('touchstart', (e) => {
+  swipe = e.touches.length === 1 && !e.target.closest('.lyrics, input') ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+}, { passive: true });
+now.addEventListener('touchend', (e) => {
+  if (!swipe) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - swipe.x;
+  const dy = t.clientY - swipe.y;
+  swipe = null;
+  if (dy > 90 && dy > Math.abs(dx) * 1.5) closeNow();
+}, { passive: true });
 
 function updateNowPlaying() {
   const s = player.current;
@@ -350,6 +392,7 @@ function syncLyric(t, force = false) {
   box.querySelector('.lyric-line.active')?.classList.remove('active');
   lyricActive = i;
   if (i >= 0) box.querySelector(`[data-i="${i}"]`)?.classList.add('active');
+  $('nowLine').textContent = i >= 0 ? lyricLines[i].text : '';
   centerLyric(force);
 }
 
@@ -391,6 +434,10 @@ $('pQueueBtn').addEventListener('click', () => {
   }
 });
 $('queueClose').addEventListener('click', () => (queue.hidden = true));
+// 点击播放列表以外的地方收起（移动端是底部弹层）
+document.addEventListener('click', (e) => {
+  if (!queue.hidden && isMobile() && !e.target.closest('#queue, #pQueueBtn') && e.target.isConnected) queue.hidden = true;
+});
 $('queueClear').addEventListener('click', () => player.clear());
 
 function renderQueue() {
