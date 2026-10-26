@@ -2,7 +2,7 @@
 
 一处搜遍各大音乐平台，附带网易云排行榜、网易云推荐歌单，以及根据你的听歌习惯生成的个性化推荐。
 
-版本 **v1.1.1** · [在线页面](https://liyucheng1997.github.io/357_lab-music-robot/) · [版本记录](CHANGELOG.md)
+版本 **v1.4.0** · [在线页面](https://liyucheng1997.github.io/357_lab-music-robot/) · [版本记录](CHANGELOG.md)
 
 ## GitHub Pages
 
@@ -24,7 +24,7 @@ CORS_ORIGINS=https://liyucheng1997.github.io
 
 ## 运行
 
-需要 Node.js 18.17 及以上版本，项目没有任何第三方依赖。
+需要 Node.js 18.17 及以上版本，服务端没有任何第三方依赖。AI 选歌用到的 Anthropic SDK 由浏览器在第一次使用时从 jsDelivr 按固定版本加载。
 
 ```bash
 npm start
@@ -42,6 +42,7 @@ npm start
 | 抖音／汽水 | 未配置授权曲库接口，当前提供官方入口，不提供站内曲库或播放。抖音跳转关键词搜索，汽水打开官网下载／客户端入口。取得授权接口后才能进一步接入 |
 | 排行榜 | 网易云官方的飙升、新歌、热歌、原创、说唱、ACG、欧美、韩语、日语、电音榜 |
 | 网易云推荐 | 首页展示推荐歌单和新歌速递 |
+| AI 选歌 | 首页用一句话描述想听的音乐（心情、场景、风格、年代、参考歌手），由 Claude Opus 5.5 流式挑出 15 首并附理由，再逐首匹配网易云、酷狗、酷我上可播放的版本；可「换一批」、可选结合本地听歌口味。需要在网页上填写自己的 Anthropic API Key |
 | 为你推荐 | 根据本地的听歌记录、收藏和「不感兴趣」生成音乐画像，再用四路召回给出推荐，每首歌附带推荐理由 |
 | 桌面歌词 | 经典描边渐变样式的双行卡拉 OK 歌词，浮在所有窗口之上，可调字号、5 种配色、切换显示翻译和小窗背景（跟随系统 / 深色 / 浅色），小窗里也能切歌和暂停。Chrome / Edge 用置顶小窗（Document Picture-in-Picture），Safari 用视频画中画，其他浏览器在页面内显示可拖动的歌词条 |
 | 播放器 | 播放队列、三种播放模式、滚动歌词（含翻译，点歌词可跳转）、锁屏和耳机按键控制、深色模式、移动端适配（全屏播放页、底部弹出的播放列表、返回键与下滑收起） |
@@ -65,6 +66,15 @@ npm start
 
 所有听歌数据只存在浏览器的 localStorage 里，服务端不保存任何用户数据。
 
+## AI 选歌
+
+[public/js/ai.js](public/js/ai.js) · [public/js/ai-ui.js](public/js/ai-ui.js)
+
+- API Key 只保存在浏览器的 localStorage，请求由浏览器直接发往 Anthropic（`dangerouslyAllowBrowser`），不经过本项目的服务器；费用计入用户自己的 Anthropic 账户。无法直连时可在设置里填写兼容 Anthropic 接口的 HTTPS 地址。
+- 使用 `claude-opus-5-5`，effort 为 `low`，JSON Schema 结构化输出；开启服务端 `fallbacks: "default"`，被安全分类器拒答时由 Anthropic 推荐的模型接着回答。
+- 边生成边解析，每出现一首完整的歌就开始匹配音源（先搜网易云，没对上再搜酷狗、酷我，同时最多查 3 首）。对不上的歌列在下方，可一键跳转搜索。
+- 勾选「结合我的口味」时，只把常听歌手和不感兴趣的歌名发给 Claude 作参考。
+
 ## 目录
 
 ```
@@ -81,6 +91,8 @@ public/
   js/player.js       播放核心与听歌行为记录
   js/desktop-lyric.js 桌面歌词
   js/avail.js        免费源提示
+  js/ai.js           AI 选歌：Claude 调用、流式解析、歌曲匹配
+  js/ai-ui.js        首页 AI 选歌面板与 API Key 设置
   js/store.js        本地数据
 test/                解析器单元测试：npm test
 ```

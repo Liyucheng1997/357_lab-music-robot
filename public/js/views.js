@@ -4,6 +4,7 @@ import { api } from './api.js';
 import { store, songKey } from './store.js';
 import { player } from './player.js';
 import { icon, esc, fmtTime, fmtCount, fmtDate, artistNames, SOURCE_NAME, platformLinks, toast } from './ui.js';
+import { aiPanel, mountAi } from './ai-ui.js';
 
 // ---------- 歌曲列表（行渲染 + 列表注册，供事件委托使用） ----------
 
@@ -170,9 +171,11 @@ export async function homeView(el, alive) {
       <h1>${greeting()}</h1>
       <p>${d.getMonth() + 1}月${d.getDate()}日 · 星期${week} · 一处搜遍各大平台，听见喜欢的声音</p>
     </div>
+    ${aiPanel()}
     ${recent.length ? section('继续收听', compactSongs(recent), { more: '#/history' }) : ''}
     <div id="homePl">${section('推荐歌单', skCards(6), { sub: '来自网易云音乐' })}</div>
     <div id="homeRest">${section('新歌速递', skRows(4))}</div>`;
+  mountAi(el);
 
   try {
     const data = await api.discover();

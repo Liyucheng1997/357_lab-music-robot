@@ -17,12 +17,12 @@ async function call(path, opts) {
 const qs = (o) => new URLSearchParams(Object.entries(o).filter(([, v]) => v != null && v !== '')).toString();
 
 export const api = {
-  search: (q, page = 1) => isPages() && !getBackendBase()
+  search: (q, page = 1, source) => isPages() && !getBackendBase()
     ? Promise.resolve({ keyword: q, page, results: {
       douyin: { ok: true, songs: [], status: 'external', message: '在抖音官方搜索音乐与视频', link: `https://www.douyin.com/search/${encodeURIComponent(q)}` },
       qishui: { ok: true, songs: [], status: 'external', message: '请在汽水音乐客户端搜索与收听', link: 'https://www.qishui.com/' },
     } })
-    : call(`/api/search?${qs({ q, page })}`),
+    : call(`/api/search?${qs({ q, page, source })}`),
   play: (song) =>
     call(`/api/play?${qs({ source: song.source, id: song.id, name: song.name, artist: song.artists?.[0]?.name, duration: song.duration })}`),
   availability: (songs, refresh = false) =>
